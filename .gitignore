@@ -1,0 +1,9 @@
+env
+backups
+media
+!**/__pycache__/
+*.pyc
+*.pyo
+/.idea
+/.vs
+ngrok.exe
