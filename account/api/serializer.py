@@ -28,13 +28,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_city(self, obj):
         return RegionSerializer(obj.city, many=False, context={'request': self.context['request']}).data
 
-
-    # def get_city(self, obj):
-    #     if obj.city:
-    #         return obj.city.name
-    #     else:
-    #         return ''
-
 class CustomuserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
@@ -60,14 +53,21 @@ class ForgetUpdateSerializer(serializers.ModelSerializer):
         model = Customuser
         fields = ["id","username","password"]
 
-class DoctorSerializer(serializers.ModelSerializer):
+class DoctorDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customuser
+        fields ="__all__"
+
+class ChooseDoctorSerializer(serializers.ModelSerializer):
     review_avg = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     profession = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
 
     class Meta:
         model = Customuser
-        fields = ["fullname","avatar","gender","bio","langtude","latitude","review_avg","review_count","profession"]
+        fields = ["id","fullname","avatar","review_avg","review_count","profession","region","city"]
 
     def get_review_avg(self, obj):
         return Review.objects.filter(doctor=obj).aggregate(avg_rating=Avg('start'))['avg_rating']
@@ -77,6 +77,39 @@ class DoctorSerializer(serializers.ModelSerializer):
 
     def get_profession(self, obj):
         return ProfessionSerializer(obj.profession, many=False, context={"request": self.context["request"]}).data
+
+    def get_region(self, obj):
+        return RegionSerializer(obj.region, many=False, context={'request': self.context['request']}).data
+
+    def get_city(self, obj):
+        return RegionSerializer(obj.city, many=False, context={'request': self.context['request']}).data
+
+
+class DoctorSerializer(serializers.ModelSerializer):
+    review_avg = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
+    profession = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Customuser
+        fields = ["id","fullname","avatar","gender","bio","langtude","latitude","review_avg","review_count","profession","region","city"]
+
+    def get_review_avg(self, obj):
+        return Review.objects.filter(doctor=obj).aggregate(avg_rating=Avg('start'))['avg_rating']
+
+    def get_review_count(self, obj):
+        return Review.objects.filter(doctor=obj).count()
+
+    def get_profession(self, obj):
+        return ProfessionSerializer(obj.profession, many=False, context={"request": self.context["request"]}).data
+
+    def get_region(self, obj):
+        return RegionSerializer(obj.region, many=False, context={'request': self.context['request']}).data
+
+    def get_city(self, obj):
+        return RegionSerializer(obj.city, many=False, context={'request': self.context['request']}).data
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

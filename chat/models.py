@@ -40,14 +40,16 @@ class Thread(models.Model):
                     "message": str(message)
                 })
 
-    def str(self):
-        return self.subject
+    def __str__(self):
+        return str(self.slug)
 
 class Particpaint(models.Model):
     user = models.ForeignKey(Customuser, null=True, on_delete=models.SET_NULL, related_name="particpaint")
-    thread = models.ForeignKey(Thread, null=True, on_delete=models.SET_NULL, related_name="particpaint")
+    thread = models.ForeignKey(Thread, null=True, on_delete=models.SET_NULL, related_name="particpaintThread")
     last_read = models.DateTimeField(auto_now=True, null=True)
 
+    def __str__(self):
+        return str(self.thread)
 
 class Message(models.Model):
     thread = models.ForeignKey(Thread, null=True, on_delete=models.SET_NULL, related_name="message1")
@@ -55,3 +57,6 @@ class Message(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self):
+        return str(self.thread)

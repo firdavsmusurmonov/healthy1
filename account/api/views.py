@@ -8,7 +8,7 @@ import random
 from rest_framework import status, generics, filters
 from rest_framework_jwt.settings import api_settings
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import  mixins
+from rest_framework import mixins
 from rest_framework import filters
 from doctor.paginations import StandardResultsSetPagination 
 from rest_framework.pagination import LimitOffsetPagination
@@ -29,21 +29,20 @@ class CategoryViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
 
 class ProfessionViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Profession.objects.all()
     serializer_class = ProfessionSerializer
-    pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
 
 class RegionViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = RegionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Region.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
@@ -85,13 +84,28 @@ class DiseaseViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.G
 
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
-        
+
+class DoctorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Customuser.objects.all()
+    serializer_class = DoctorSerializer
+    pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend,filters.SearchFilter)
+    search_fields = ['fullname',"profession__name"]
+    filterset_fields = ["region","city","profession__id"]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ChooseDoctorSerializer
+        else:
+            return DoctorDetailSerializer
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def region(request):
     region_id = request.GET.get("region_id")
     if region_id:
-        region = Region.objects.filter(parent_id=region_id).all()    
+        region = Region.objects.filter(parent_id=region_id).all()
     else:
         region = Region.objects.filter(parent__isnull=True).all()
     
@@ -100,7 +114,6 @@ def region(request):
         'data': RegionSerializer(region, many=True, context={"request":request}).data,
     }
     return Response(res)
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
@@ -242,8 +255,8 @@ def login(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def update_profil_img(request):
-    user = request.user 
-    status = request.status   
+    user = request.user,
+    user.status = request.data.get('status')
     if 'avatar' in request.data:
         user.avatar = request.data['avatar']
         user.save()
@@ -327,6 +340,7 @@ def doctor_detail(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])

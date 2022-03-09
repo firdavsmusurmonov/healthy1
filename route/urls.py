@@ -1,8 +1,8 @@
 from account.api.views import *
 from schedule.api.views import *
-from chat.api.views import  ThreadViewSet, MessageViewSet, send_message
-from account.api.views  import RegionViewSet,update_profil_img
-from schedule.api.views import reschedule_schedule
+from chat.api.views import ThreadViewSet, MessageViewSet, send_message
+from account.api.views import RegionViewSet,update_profil_img
+from schedule.api.views import set_status,reschedule_schedule,me_canceled
 from rest_framework import routers, serializers, viewsets
 
 router = routers.DefaultRouter()
@@ -10,11 +10,12 @@ router.register(r'users', UserViewSet)
 router.register(r'threads', ThreadViewSet)
 router.register(r'message', MessageViewSet)
 router.register(r'category', CategoryViewSet)
-router.register(r'region', RegionViewSet)
+router.register(r'region1', RegionViewSet)
 router.register(r'diagnos', DiagnosViewSet)
 router.register(r'disease', DiseaseViewSet)
 router.register(r'drug', DrugViewSet)
 router.register(r'profession', ProfessionViewSet)
+router.register(r'doctorchoose', DoctorViewSet)
 
 
 from django.contrib import admin
@@ -31,12 +32,14 @@ urlpatterns = [
     path('forget-password-update', forget_password_update),
     path('me', me),
     path('doctor', doctor),
+    path('region', region),
     path('doctor-detail', doctor_detail),
     path('me-schedule', me_schedule),
     path('create-schedule', create_schedule),
     path('send-message', send_message),
+    path('set-status', set_status),
+    path('me-canceled', me_canceled),
     path('reschedule-schedule', reschedule_schedule),
-    path('region', region),
     path('update-profil-img', update_profil_img)
 ]
 

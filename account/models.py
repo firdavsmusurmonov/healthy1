@@ -59,6 +59,7 @@ class Review(models.Model):
     doctor = models.ForeignKey(Customuser, related_name="review_doctor", null=True, blank=True, on_delete=models.CASCADE)
     profession = models.ForeignKey(Profession, related_name="review_profession", null=True, blank=True, on_delete=models.CASCADE)
     text = models.CharField(max_length=512)
+
     
     def __str__(self):
         return str(self.doctor)

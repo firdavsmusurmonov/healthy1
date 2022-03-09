@@ -16,7 +16,7 @@ from doctor.paginations import StandardResultsSetPagination
 
 class ThreadViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ThreadSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Thread.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
@@ -35,9 +35,6 @@ class MessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
     filterset_fields = ['user']
     search_fields = ['user']
-
-
-
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
