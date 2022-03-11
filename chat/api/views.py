@@ -24,8 +24,7 @@ class ThreadViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     search_fields = ['subject']
 
     def get_queryset(self):
-        return Thread.objects.filter(particpaint__user=self.request.user).all()
-
+        return Thread.objects.filter(particpaintThread__user=self.request.user).all()
 
 class MessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = MessageSerializer
@@ -33,8 +32,8 @@ class MessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Message.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
-    filterset_fields = ['user']
-    search_fields = ['user']
+    filterset_fields = ['user','thread']
+    search_fields = ['user','thread']
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

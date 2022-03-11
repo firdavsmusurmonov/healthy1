@@ -1,6 +1,5 @@
 from django.db import models
 from account.models import Customuser
-# Create your models here.
 from doctor.utils import generate_unique_slug
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync

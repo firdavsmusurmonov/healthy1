@@ -11,11 +11,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
 from rest_framework import filters
 from doctor.paginations import StandardResultsSetPagination 
+from .filters import DiagnosFilter
 from rest_framework.pagination import LimitOffsetPagination
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
 
 class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Customuser.objects.all()
@@ -49,14 +49,23 @@ class RegionViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.Ge
     filterset_fields = ['name']
     search_fields = ['name']
 
+
 class DiagnosViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,viewsets.GenericViewSet):
     serializer_class = DiagnosSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Diagnos.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    # filterset_class = DiagnosFilter
     filterset_fields = ['name']
     search_fields = ['name']
+
+    def get_queryset(self):
+        ids = self.request.GET.get('disease_id')
+        if ids:
+            ids = ids.split(',')
+            return Diagnos.objects.filter(disease__in=ids).all()
+        return Diagnos.objects.all()
 
 class DrugViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,viewsets.GenericViewSet):
     serializer_class = DrugSerializer
@@ -98,7 +107,6 @@ class DoctorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
             return ChooseDoctorSerializer
         else:
             return DoctorDetailSerializer
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])

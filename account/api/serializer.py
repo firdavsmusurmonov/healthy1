@@ -33,6 +33,11 @@ class CustomuserSerializer(serializers.ModelSerializer):
         model = Customuser
         fields = ["id","username","phone","smscode"]
 
+class CustomuserMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customuser
+        fields = ["id","username"]
+
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
