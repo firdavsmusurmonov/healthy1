@@ -123,15 +123,15 @@ def region(request):
     }
     return Response(res)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def register(request):
     try:
         username = request.data.get('username')
-        phone = request.data.get('phone')
+        email = request.data.get('email')
         password = request.data.get('password')
-        smscode = request.data.get('sms_code')
-        if not username:
+        if not login:
             res = {
                 'msg': 'Login empty',
                 'status': 0,
@@ -142,6 +142,7 @@ def register(request):
         if not user:
             user = Customuser.objects.create(
                 username=username,
+                email=email,
                 complete=0
             )
         elif user:
@@ -150,18 +151,17 @@ def register(request):
                 'status': 2,
             }
             return Response(res)
-
         smscode = random.randint(1000, 9999)
         user.set_password(str(password))
-        user.phone=int(phone)
         user.smscode = smscode
+        user.email = email
         user.save()
-        send_sms(phone, "Tasdiqlash codi "+ str(smscode))
+        send_sms(email, "Sizning tasdiqlash codingiz " + str(smscode))
+
         if user:
             result = {
                 'status': 1,
                 'msg': 'Sms sended',
-                'user': CustomuserSerializer(user, many=False, context={"request": request}).data,
             }
             return Response(result, status=status.HTTP_200_OK)
         else:
@@ -178,33 +178,30 @@ def register(request):
         return Response(res)
 
 @api_view(['POST'])
-@permission_classes([AllowAny,])
+@permission_classes([AllowAny, ])
 def register_accepted(request):
     try:
-        username = request.data.get('username')
         sms_code = request.data.get('sms_code')
+        username = request.data.get('username')
         user = Customuser.objects.filter(username=username).first()
-        
-        if user and int(user.smscode) == int(sms_code):
-            user.complete = 0
-            user.save()
+        print(user)
+        if user and str(user.smscode) == str(sms_code):
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
+            user.complete = 1
+            user.save()
             result = {
                 'status': 1,
-                'msg': 'Sms sended',
-                'user': ForgetSerializer(user, many=False, context={"request": request}).data,
+                'user': CustomuserSerializer(user, many=False, context={"request": request}).data,
                 'token': token
             }
-            
-            return Response(result, status=status.HTTP_200_OK)  
         else:
             result = {
                 'status': 1,
-                'msg': 'Sms send not equal',
+                'msg': 'Sms not equal',
+
             }
-            return Response(result, status=status.HTTP_200_OK)  
- 
+        return Response(result)
     except KeyError:
         res = {
             'status': 0,
@@ -227,17 +224,21 @@ def login(request):
 
         user = Customuser.objects.filter(username=username).first()
         if not user:
-            res = {
-                'msg': 'Login or password wrond',
-                'status': 0,
-            }
-            return Response(res)
-        if user and user.complete == 0:
-            res = {
-                'msg': 'Sms not verifcations',
-                'status': 0,
-            }
-        if user and user.check_password(password):
+            user = Customuser.objects.filter(email=username).first()
+            if not user:
+                res = {
+                    'msg': 'email or password wrond',
+                    'status': 0,
+                }
+                return Response(res)
+        print(user)
+        if user and user.check_password(str(password)):
+            if user.complete == 0:
+                res = {
+                    'msg': 'email sms code not check',
+                    'status': 0,
+                }
+                return Response(res)
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
             result = {
@@ -260,6 +261,97 @@ def login(request):
         }
         return Response(res)
 
+from django.core.mail import EmailMessage
+
+def send_sms(mail, text):
+    email = EmailMessage('Veri', text, to=[mail])
+    email.send()
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def forget_password(request):
+    try:
+        username = request.data.get('email')
+        user = Customuser.objects.filter(email=username).first()
+        if user:
+            smscode = random.randint(1000, 9999)
+            user.smscode = smscode
+            user.save()
+            send_sms(user.email, "Tasdiqlash codi " + str(smscode))
+            result = {
+                'status': 1,
+                'msg': 'Sms send',
+                "email": user.email
+            }
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            result = {
+                'status': 1,
+                'msg': 'User not found'
+            }
+            return Response(result, status=status.HTTP_200_OK)
+    except KeyError:
+        res = {
+            'status': 0,
+            'msg': 'Please set all reqiured fields'
+        }
+        return Response(res)
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def forget_password_accepted(request):
+    try:
+        sms_code = request.data.get('sms_code')
+        username = request.data.get('email')
+        user = Customuser.objects.filter(email=username).first()
+        if user and str(user.smscode) == str(sms_code):
+            payload = jwt_payload_handler(user)
+            token = jwt_encode_handler(payload)
+            user.complete = 1
+            user.save()
+            result = {
+                'status': 1,
+                'user': ForgetSerializer(user, many=False, context={"request": request}).data,
+                'token': token
+            }
+        else:
+            result = {
+                'status': 1,
+                'msg': 'Sms not equal',
+
+            }
+        return Response(result)
+    except KeyError:
+        res = {
+            'status': 0,
+            'msg': 'Please set all reqiured fields'
+        }
+        return Response(res)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, ])
+def forget_password_update(request):
+    try:
+        new_password = request.data.get('new_password')
+        user = request.user
+        user.set_password(new_password)
+        user.save()
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+        result = {
+            'status': 1,
+            'msg': 'User password updated',
+            'user': ForgetUpdateSerializer(user, many=False, context={"request": request}).data,
+            'token': token
+        }
+        return Response(result, status=status.HTTP_200_OK)
+    except KeyError:
+        res = {
+            'status': 0,
+            'msg': 'Please set all reqiured fields'
+        }
+        return Response(res)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def update_profil_img(request):
@@ -268,7 +360,7 @@ def update_profil_img(request):
     if 'avatar' in request.data:
         user.avatar = request.data['avatar']
         user.save()
-    return  Response(status=status.HTTP_200_OK, data={'status': 'ok'})    
+    return  Response(status=status.HTTP_200_OK, data={'status': 'ok'})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
@@ -349,7 +441,6 @@ def doctor_detail(request):
         }
         return Response(res)
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def set_password(request):
@@ -382,92 +473,6 @@ def set_password(request):
         }
         return Response(res)
 
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
-def forget_password(request):
-    try:
-        username = request.data.get('username')
-        user = Customuser.objects.filter(username=username).first()
-        if user:
-            smscode = random.randint(1000, 9999)
-            user.smscode = smscode
-            user.save()
-            send_sms(user.phone, "Tasdiqlash codi "+ str(smscode))       
-            result = {
-                'status': 1,
-                'msg': 'Sms send',
-                "phone":user.phone
-            }
-            return Response(result, status=status.HTTP_200_OK)
-        else:
-            result = {
-                'status': 1,
-                'msg': 'User not found'
-            }
-            return Response(result, status=status.HTTP_200_OK)
-    except KeyError:
-        res = {
-            'status': 0,
-            'msg': 'Please set all reqiured fields'
-        }
-        return Response(res)
-
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
-def forget_password_accepted(request):
-    try:
-        username = request.data.get('username')
-        sms_code = request.data.get('sms_code')
-        user = Customuser.objects.filter(username=username).first()
-        if user and int(user.smscode) == int(sms_code):
-            payload = jwt_payload_handler(user)
-            token = jwt_encode_handler(payload)
-            result = {
-                'status': 1,
-                'msg': 'Sms sended',
-                'user': ForgetSerializer(user, many=False, context={"request": request}).data,
-                'token': token
-            }
-            
-            return Response(result, status=status.HTTP_200_OK)  
-        else:
-            result = {
-                'status': 1,
-                'msg': 'Sms send not equal',
-            }
-            return Response(result, status=status.HTTP_200_OK)  
- 
-    except KeyError:
-        res = {
-            'status': 0,
-            'msg': 'Please set all reqiured fields'
-        }
-        return Response(res)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated, ])
-def forget_password_update(request):
-    try:
-        new_password = request.data.get('new_password')
-        user = request.user
-        user.set_password(new_password)
-        user.save()
-        payload = jwt_payload_handler(user)
-        token = jwt_encode_handler(payload)
-        result = {
-                'status': 1,
-                'msg': 'User password updated',
-                'user': ForgetUpdateSerializer(user, many=False, context={"request": request}).data,
-                'token': token
-        }
-        return Response(result, status=status.HTTP_200_OK)
-    except KeyError:
-        res = {
-            'status': 0,
-            'msg': 'Please set all reqiured fields'
-        }
-        return Response(res)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def doctor(request):
@@ -490,24 +495,24 @@ def doctor(request):
         }
         return Response(res)
 
-import requests
-def send_sms(phone, message):
-    
-    print("SALOM")
-    url = "https://notify.eskiz.uz/api/message/sms/send"
-
-    payload={
-        'mobile_phone': phone,
-        'message':message,
-        'from': '4546'
-    }
-    files=[
-
-    ]
-    headers = {
-    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvbm90aWZ5LmVza2l6LnV6XC9hcGlcL2F1dGhcL2xvZ2luIiwiaWF0IjoxNjQ0MjI2Njg0LCJleHAiOjE2NDY4MTg2ODQsIm5iZiI6MTY0NDIyNjY4NCwianRpIjoiTWtiMEdEeTd6UjFrdm5IcSIsInN1YiI6NSwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.nAHeGgQOCu107fejDZA23HxHPD6cMXS2fFrDHBZ1620'
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload, files=files)
-
-    print(response.text)
+# import requests
+# def send_sms(phone, message):
+#
+#     print("SALOM")
+#     url = "https://notify.eskiz.uz/api/message/sms/send"
+#
+#     payload={
+#         'mobile_phone': phone,
+#         'message':message,
+#         'from': '4546'
+#     }
+#     files=[
+#
+#     ]
+#     headers = {
+#     'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvbm90aWZ5LmVza2l6LnV6XC9hcGlcL2F1dGhcL2xvZ2luIiwiaWF0IjoxNjQ0MjI2Njg0LCJleHAiOjE2NDY4MTg2ODQsIm5iZiI6MTY0NDIyNjY4NCwianRpIjoiTWtiMEdEeTd6UjFrdm5IcSIsInN1YiI6NSwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.nAHeGgQOCu107fejDZA23HxHPD6cMXS2fFrDHBZ1620'
+#     }
+#
+#     response = requests.request("POST", url, headers=headers, data=payload, files=files)
+#
+#     print(response.text)

@@ -42,5 +42,4 @@ urlpatterns = [
     path('reschedule-schedule', reschedule_schedule),
     path('update-profil-img', update_profil_img)
 ]
-
 urlpatterns += router.urls

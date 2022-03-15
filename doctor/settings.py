@@ -170,3 +170,15 @@ CHANNEL_LAYERS = {
     }
 }
 ASGI_APPLICATION = "doctor.asgi.application"
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'healthymedoctor@gmail.com'
+EMAIL_HOST_PASSWORD = 'ucptjiglzxuyutia'
+EMAIL_PORT = 587
+
+SITE_ID = 1
