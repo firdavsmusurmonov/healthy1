@@ -20,9 +20,11 @@ class CustomuserAdmin(admin.ModelAdmin):
 
 class DiseaseAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
+    filter_horizontal = ['drugs']
 
 class DiagnosAdmin(admin.ModelAdmin):
     list_display = ['id','name']
+    filter_horizontal = ['disease']
 
 
 

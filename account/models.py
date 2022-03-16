@@ -66,7 +66,6 @@ class Review(models.Model):
 
 class Drug(models.Model):
     name = models.CharField(default="",max_length=255,null=True,blank=True)
-    image = models.ImageField(upload_to=get_image, default='users/default.png')
     def __str__(self):
         return str(self.name)
 

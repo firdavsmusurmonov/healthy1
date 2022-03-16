@@ -10,22 +10,24 @@ from rest_framework_jwt.settings import api_settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
 from rest_framework import filters
-from doctor.paginations import StandardResultsSetPagination 
+from doctor.paginations import StandardResultsSetPagination
 from .filters import DiagnosFilter
 from rest_framework.pagination import LimitOffsetPagination
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
+
 class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Customuser.objects.all()
     serializer_class = CustomuserSerializer
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['first_name']
     search_fields = ['first_name']
 
-class CategoryViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = StandardResultsSetPagination
@@ -33,29 +35,31 @@ class CategoryViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.
     filterset_fields = ['name']
     search_fields = ['name']
 
-class ProfessionViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+class ProfessionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Profession.objects.all()
     serializer_class = ProfessionSerializer
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
 
-class RegionViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+class RegionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = RegionSerializer
     permission_classes = [AllowAny]
     queryset = Region.objects.all()
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
 
 
-class DiagnosViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,viewsets.GenericViewSet):
+class DiagnosViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = DiagnosSerializer
     permission_classes = [AllowAny]
     queryset = Diagnos.objects.all()
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     # filterset_class = DiagnosFilter
     filterset_fields = ['name']
     search_fields = ['name']
@@ -67,46 +71,50 @@ class DiagnosViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,viewsets.G
             return Diagnos.objects.filter(disease__in=ids).all()
         return Diagnos.objects.all()
 
-class DrugViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,viewsets.GenericViewSet):
+
+class DrugViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = DrugSerializer
     permission_classes = [IsAuthenticated]
     queryset = Drug.objects.all()
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
 
-class DiseaseViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+class DiseaseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = DiseaseSerializer
     permission_classes = [IsAuthenticated]
     queryset = Disease.objects.all()
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
 
     def get_serializer(self, *args, **kwargs):
         if self.action == 'list':
-            serializer_class = DiseaseSerializer           
+            serializer_class = DiseaseSerializer
         else:
             serializer_class = DiseaseDetailSerializer
 
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
+
 class DoctorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Customuser.objects.all()
     serializer_class = DoctorSerializer
     pagination_class = LimitOffsetPagination
-    filter_backends = (DjangoFilterBackend,filters.SearchFilter)
-    search_fields = ['fullname',"profession__name"]
-    filterset_fields = ["region","city","profession__id"]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ['fullname', "profession__name"]
+    filterset_fields = ["region", "city", "profession__id"]
 
     def get_serializer_class(self):
         if self.action == "list":
             return ChooseDoctorSerializer
         else:
             return DoctorDetailSerializer
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
@@ -116,10 +124,10 @@ def region(request):
         region = Region.objects.filter(parent_id=region_id).all()
     else:
         region = Region.objects.filter(parent__isnull=True).all()
-    
+
     res = {
         'status': 1,
-        'data': RegionSerializer(region, many=True, context={"request":request}).data,
+        'data': RegionSerializer(region, many=True, context={"request": request}).data,
     }
     return Response(res)
 
@@ -177,6 +185,15 @@ def register(request):
         }
         return Response(res)
 
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def send_gmail(request):
+    email = "yarbek19951@gmail.com"
+    send_sms(email, "SALOM")
+    return Response({"status": 1, "msg": "Sms send sms"})
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def register_accepted(request):
@@ -208,6 +225,7 @@ def register_accepted(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
@@ -261,18 +279,22 @@ def login(request):
         }
         return Response(res)
 
+
 from django.core.mail import EmailMessage
 
+
 def send_sms(mail, text):
-    email = EmailMessage('Veri', text, to=[mail])
+    email = EmailMessage('Healthyme', text, to=[mail])
     email.send()
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def forget_password(request):
     try:
-        username = request.data.get('email')
+        username = request.data.get('username')
         user = Customuser.objects.filter(email=username).first()
+        print(username)
         if user:
             smscode = random.randint(1000, 9999)
             user.smscode = smscode
@@ -297,12 +319,13 @@ def forget_password(request):
         }
         return Response(res)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def forget_password_accepted(request):
     try:
         sms_code = request.data.get('sms_code')
-        username = request.data.get('email')
+        username = request.data.get('username')
         user = Customuser.objects.filter(email=username).first()
         if user and str(user.smscode) == str(sms_code):
             payload = jwt_payload_handler(user)
@@ -328,6 +351,7 @@ def forget_password_accepted(request):
         }
         return Response(res)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def forget_password_update(request):
@@ -352,6 +376,7 @@ def forget_password_update(request):
         }
         return Response(res)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def update_profil_img(request):
@@ -360,7 +385,8 @@ def update_profil_img(request):
     if 'avatar' in request.data:
         user.avatar = request.data['avatar']
         user.save()
-    return  Response(status=status.HTTP_200_OK, data={'status': 'ok'})
+    return Response(status=status.HTTP_200_OK, data={'status': 'ok'})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
@@ -401,6 +427,7 @@ def profil(request):
         }
         return Response(res)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def me(request):
@@ -418,11 +445,12 @@ def me(request):
         }
         return Response(res)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def doctor_detail(request):
     try:
-        user = Customuser.objects.filter(id=request.GET.get("doctor_id",0)).first()
+        user = Customuser.objects.filter(id=request.GET.get("doctor_id", 0)).first()
         if user:
             result = {
                 'status': 1,
@@ -440,6 +468,7 @@ def doctor_detail(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
@@ -473,6 +502,7 @@ def set_password(request):
         }
         return Response(res)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def doctor(request):
@@ -495,6 +525,19 @@ def doctor(request):
         }
         return Response(res)
 
+
+# from django.core.mail import EmailMessage
+#
+# @api_view(['POST'])
+# @permission_classes([AllowAny, ])
+# def send_gmail(request):
+#     email_data = "yarbek19951@gmail.com"
+#     # send_sms(email, "SALOM")
+#     email = EmailMessage("", "dasdasdas", to=[email_data])
+#
+#     email.send()
+#     return Response({"status": 1, "msg": "Sms send sms"})
+
 # import requests
 # def send_sms(phone, message):
 #
@@ -516,3 +559,32 @@ def doctor(request):
 #     response = requests.request("POST", url, headers=headers, data=payload, files=files)
 #
 #     print(response.text)
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def get_result(request):
+    disease_ids = request.data['disease_ids']
+    diagnos = Diagnos.objects.all()
+    persents = {}
+    diagnos_ids = []
+    for id in disease_ids:
+        for diag in diagnos:
+            if diag.disease.filter(id=id).exists():
+                if persents.get(diag.id) == None:
+                    persents[diag.id] = 0
+                persents[diag.id] = persents[diag.id] + 1
+                diagnos_ids.append(diag.id)
+                # persents = persents[diag.id]+1
+    all_count = 0
+    for persent in persents:
+        all_count = all_count + persents[persent]
+
+    diagnos = Diagnos.objects.filter(id__in=diagnos_ids).all()
+    data = DiagnosSerializer(diagnos, many=True, context={
+        'request':request,
+        'persents':persents,
+        'all_count':all_count
+    })
+    serializer_data = sorted(
+        data.data, key=lambda k: k['persent'], reverse=True)
+    return Response({"status": 1, "diagnostics":serializer_data })

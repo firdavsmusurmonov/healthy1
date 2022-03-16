@@ -23,6 +23,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('register', register),
+    path('send-gmail', send_gmail),
+    path('get-result', get_result),
     path('register-accepted', register_accepted),
     path('login', login),
     path('profil', profil),

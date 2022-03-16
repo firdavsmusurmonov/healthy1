@@ -31,7 +31,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class CustomuserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","username","phone","smscode"]
+        fields = ["id","username","email","smscode"]
 
 class CustomuserMessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -122,9 +122,17 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class DiagnosSerializer(serializers.ModelSerializer):
+    persent = serializers.SerializerMethodField()
     class Meta:
         model = Diagnos
-        fields =["id","name","text"]
+        fields =["id","name","text",'persent']
+
+    def get_persent(self, obj):
+        presents = 0
+        if self.context["persents"].get(obj.id) != None:
+            presents = self.context["persents"][obj.id] / self.context["all_count"] * 100
+        return presents
+
 
 class DrugSerializer(serializers.ModelSerializer):
     class Meta:
@@ -132,9 +140,14 @@ class DrugSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class DiseaseSerializer(serializers.ModelSerializer):
+    drugs = serializers.SerializerMethodField()
+
     class Meta:
         model = Disease
-        fields = "__all__"
+        fields = ['id','name','drugs']
+
+    def get_drugs(self, obj):
+        return DrugSerializer(obj.drugs,many=True, context={"request": self.context["request"]}).data
 
 class DiseaseDetailSerializer(serializers.ModelSerializer):
     durgs = serializers.SerializerMethodField()
