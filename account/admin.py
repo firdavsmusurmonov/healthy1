@@ -2,7 +2,7 @@ from django.contrib import admin
 from account.models import *
 
 class RegionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'parent']
+    list_display = ['id','name', 'parent']
     search_fields = ['name']
 
 class DrugAdmin(admin.ModelAdmin):
@@ -16,7 +16,10 @@ class ProfessionAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
 
 class CustomuserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'username']
+    list_display = ['id', 'username','is_doctor']
+    list_editable = ['is_doctor']
+    # list_filter = ['is_doctor', 'gender']
+    # search_fields = ['username']
 
 class DiseaseAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']

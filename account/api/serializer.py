@@ -6,62 +6,71 @@ from django.db.models import Avg
 class ProfessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profession
-        fields = ["id","name"]
+        fields = ["id", "name"]
 
 
 class RegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Region
-        fields =["id","name"]
+        fields = ["id", "name"]
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     region = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
+
     class Meta:
         model = Customuser
-        fields = ["id","fullname","avatar","username","email","gender","phone","birth_date","region","city"]
-    
+        fields = ["id", "fullname", "avatar", "username", "email", "gender", "phone", "birth_date", "region", "city"]
+
     def get_region(self, obj):
         return RegionSerializer(obj.region, many=False, context={'request': self.context['request']}).data
-    
-    
+
     def get_city(self, obj):
         return RegionSerializer(obj.city, many=False, context={'request': self.context['request']}).data
+
 
 class CustomuserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","username","email","smscode"]
+        fields = ["id", "username", "email", "smscode"]
+
 
 class CustomuserMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","username"]
+        fields = ["id", "username"]
+
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","password","username"]
+        fields = ["id", "password", "username"]
+
 
 class SetPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","password","phone"]
+        fields = ["id", "password", "phone"]
+
 
 class ForgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","username","smscode"]
+        fields = ["id", "username", "smscode"]
+
 
 class ForgetUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields = ["id","username","password"]
+        fields = ["id", "username", "password"]
+
 
 class DoctorDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
-        fields ="__all__"
+        fields = "__all__"
+
 
 class ChooseDoctorSerializer(serializers.ModelSerializer):
     review_avg = serializers.SerializerMethodField()
@@ -72,7 +81,7 @@ class ChooseDoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customuser
-        fields = ["id","fullname","avatar","review_avg","review_count","profession","region","city"]
+        fields = ["id", "fullname", "avatar", "review_avg", "review_count", "profession", "region", "city"]
 
     def get_review_avg(self, obj):
         return Review.objects.filter(doctor=obj).aggregate(avg_rating=Avg('start'))['avg_rating']
@@ -99,7 +108,8 @@ class DoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customuser
-        fields = ["id","fullname","avatar","gender","bio","langtude","latitude","review_avg","review_count","profession","region","city"]
+        fields = ["id", "fullname", "avatar", "gender", "bio", "langtude", "latitude", "review_avg", "review_count",
+                  "profession", "region", "city"]
 
     def get_review_avg(self, obj):
         return Review.objects.filter(doctor=obj).aggregate(avg_rating=Avg('start'))['avg_rating']
@@ -116,16 +126,19 @@ class DoctorSerializer(serializers.ModelSerializer):
     def get_city(self, obj):
         return RegionSerializer(obj.city, many=False, context={'request': self.context['request']}).data
 
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
 
+
 class DiagnosSerializer(serializers.ModelSerializer):
     persent = serializers.SerializerMethodField()
+
     class Meta:
         model = Diagnos
-        fields =["id","name","text",'persent']
+        fields = ["id", "name", "text", 'persent', 'introdaction', 'suggestion']
 
     def get_persent(self, obj):
         presents = 0
@@ -139,21 +152,24 @@ class DrugSerializer(serializers.ModelSerializer):
         model = Drug
         fields = "__all__"
 
+
 class DiseaseSerializer(serializers.ModelSerializer):
     drugs = serializers.SerializerMethodField()
 
     class Meta:
         model = Disease
-        fields = ['id','name','drugs']
+        fields = ['id', 'name', 'drugs']
 
     def get_drugs(self, obj):
-        return DrugSerializer(obj.drugs,many=True, context={"request": self.context["request"]}).data
+        return DrugSerializer(obj.drugs, many=True, context={"request": self.context["request"]}).data
+
 
 class DiseaseDetailSerializer(serializers.ModelSerializer):
     durgs = serializers.SerializerMethodField()
+
     class Meta:
         model = Disease
         fields = "__all__"
 
     def get_durgs(self, obj):
-        return DrugSerializer(obj.drugs,many=True, context={"request": self.context["request"]}).data
+        return DrugSerializer(obj.drugs, many=True, context={"request": self.context["request"]}).data

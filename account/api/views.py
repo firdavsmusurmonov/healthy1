@@ -10,9 +10,9 @@ from rest_framework_jwt.settings import api_settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
 from rest_framework import filters
-from doctor.paginations import StandardResultsSetPagination
-from .filters import DiagnosFilter
 from rest_framework.pagination import LimitOffsetPagination
+from doctor.paginations import StandardResultsSetPagination
+from .filters import DiagnosFilter, CustomuserFilter
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -25,6 +25,7 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['first_name']
     search_fields = ['first_name']
+
 
 
 class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -108,6 +109,7 @@ class DoctorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ['fullname', "profession__name"]
     filterset_fields = ["region", "city", "profession__id"]
+    filterset_class = CustomuserFilter
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -184,14 +186,13 @@ def register(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
-def send_gmail(request):
-    email = "yarbek19951@gmail.com"
-    send_sms(email, "SALOM")
-    return Response({"status": 1, "msg": "Sms send sms"})
+#
+# @api_view(['POST'])
+# @permission_classes([AllowAny, ])
+# def send_gmail(request):
+#     email = "yarbek19951@gmail.com"
+#     send_sms(email, "SALOM")
+#     return Response({"status": 1, "msg": "Sms send sms"})
 
 
 @api_view(['POST'])
@@ -447,7 +448,7 @@ def me(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, ])
+@permission_classes([IsAuthenticated,])
 def doctor_detail(request):
     try:
         user = Customuser.objects.filter(id=request.GET.get("doctor_id", 0)).first()
@@ -587,4 +588,4 @@ def get_result(request):
     })
     serializer_data = sorted(
         data.data, key=lambda k: k['persent'], reverse=True)
-    return Response({"status": 1, "diagnostics":serializer_data })
+    return Response({"status": 1, "diagnostics":serializer_data})

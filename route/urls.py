@@ -23,7 +23,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('register', register),
-    path('send-gmail', send_gmail),
+    # path('send-gmail', send_gmail),
     path('get-result', get_result),
     path('register-accepted', register_accepted),
     path('login', login),
@@ -45,3 +45,22 @@ urlpatterns = [
     path('update-profil-img', update_profil_img)
 ]
 urlpatterns += router.urls
+# def unc(n):
+#     if len(n)<=4:
+#         return n
+#     else:
+#         part = n[:-4]
+#         part2 = n[-4:]
+#         nat = len(part)*"$"
+#         nat += part2
+#         return nat
+# print(unc('123556745678'))
+#
+#
+# n = int(input())
+# s = int()
+# arr = list(map(int,input().split()[:n]))
+# maxx = max(arr)
+# for i in range(n):
+#     s = (arr[i]/maxx)
+#     print("%.2f"%s, end=" ")

@@ -1,12 +1,14 @@
 import django_filters
-from account.models import Diagnos, Disease
-# class DoctorFilter(django_filters.FilterSet):
-#     name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
-#     class Meta:
-#         model = Customuser
-#         fields = ["flash_sale", 'mega_sale', 'home_sale', 'name']
+from account.models import Diagnos, Disease,Customuser
 
-#
+class CustomuserFilter(django_filters.FilterSet):
+    is_doctor = django_filters.BooleanFilter(field_name='is_doctor')
+    fullname = django_filters.CharFilter(field_name='fullname', lookup_expr='icontains')
+
+    class Meta:
+        model = Customuser
+        fields = ["is_doctor"]
+
 class DiagnosFilter(django_filters.FilterSet):
     disease = django_filters.ModelChoiceFilter(queryset=Disease.objects.all())
 

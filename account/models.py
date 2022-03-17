@@ -51,7 +51,7 @@ class Customuser(AbstractUser):
     profession = models.ForeignKey(Profession, null=True, blank=True, on_delete=models.SET_NULL)
     region = models.ForeignKey(Region, related_name="user_region", null=True,blank=True,on_delete=models.CASCADE)
     city = models.ForeignKey(Region,related_name="user_city",null=True,blank=True,on_delete=models.CASCADE)
-
+    is_doctor = models.BooleanField(default=False)
 
 class Review(models.Model):
     start = models.IntegerField(default=0)
@@ -79,6 +79,9 @@ class Diagnos(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
     text = models.TextField(default="",null=True,blank=True)
     disease = models.ManyToManyField(Disease, related_name='disease')
+    introdaction = models.TextField(default="",null=True,blank=True)
+    suggestion = models.TextField(default="",null=True,blank=True)
+
     def __str__(self):
         return str(self.name)
 
