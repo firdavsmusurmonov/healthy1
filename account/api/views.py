@@ -575,7 +575,6 @@ def get_result(request):
                     persents[diag.id] = 0
                 persents[diag.id] = persents[diag.id] + 1
                 diagnos_ids.append(diag.id)
-                # persents = persents[diag.id]+1
     all_count = 0
     for persent in persents:
         all_count = all_count + persents[persent]

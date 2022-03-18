@@ -7,7 +7,7 @@ class CustomuserFilter(django_filters.FilterSet):
 
     class Meta:
         model = Customuser
-        fields = ["is_doctor"]
+        fields = ["is_doctor",'profession','city','region']
 
 class DiagnosFilter(django_filters.FilterSet):
     disease = django_filters.ModelChoiceFilter(queryset=Disease.objects.all())
