@@ -4,9 +4,7 @@ from .serializer import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
 from rest_framework import status
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
@@ -14,6 +12,7 @@ def me_schedule(request):
     try:
         user = request.user
         id = request.GET.get('id')
+        # status = request.GET['status']
         if id:
             schedule = Schedule.objects.filter(pk=id).first()
             result = {
@@ -21,6 +20,14 @@ def me_schedule(request):
                 'schedule': ScheduleSerializer(schedule, many=False, context={"request": request}).data
             }
             return Response(result, status=status.HTTP_200_OK)
+        # if status:
+        #     status = Schedule.objects.filter(status=status).all()
+        #     result = {
+        #         'status': 1,
+        #         'schedule': ScheduleSerializer(schedule, many=False, context={"request": request}).data
+        #     }
+        #     return Response(result, status=status.HTTP_200_OK)
+
         schedule = Schedule.objects.filter(user=user).order_by("-created_at").all()
         result = {
             'status': 1,
