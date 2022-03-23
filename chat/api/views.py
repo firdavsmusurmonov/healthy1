@@ -10,34 +10,36 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import datetime
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import  mixins
+from rest_framework import mixins
 from rest_framework import filters
-from doctor.paginations import StandardResultsSetPagination 
+from doctor.paginations import StandardResultsSetPagination
+
 
 class ThreadViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ThreadSerializer
     permission_classes = [AllowAny]
     queryset = Thread.objects.all()
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['subject']
     search_fields = ['subject']
 
     def get_queryset(self):
         return Thread.objects.filter(particpaintThread__user=self.request.user).all()
 
+
 class MessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
     queryset = Message.objects.all()
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend,  filters.SearchFilter]
-    filterset_fields = ['user','thread']
-    search_fields = ['user','thread']
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['user', 'thread']
+    search_fields = ['user', 'thread']
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        particpaint = Particpaint.objects.filter(thread__slug=self.request.GET['slug'],user=self.request.user).first()
+        particpaint = Particpaint.objects.filter(thread__slug=self.request.GET['slug'], user=self.request.user).first()
         if particpaint:
             particpaint.last_read = datetime.datetime.now()
             particpaint.save()
@@ -52,6 +54,45 @@ class MessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
         return Message.objects.filter(thread__slug=self.request.GET['slug']).order_by("-created_at").all()
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, ])
+def send_chat(request):
+    try:
+        user = request.data.get('id')
+        subject = "support_" + str(user) + "_" + str(request.user.id)
+        thread = Thread.objects.filter(subject=subject).first()
+        if thread:
+            res = {
+                "status": 1,
+                "data": ThreadSerializer(thread, many=False, context={"request": request}).data
+            }
+            return Response(res)
+        if user:
+            thread = Thread.objects.create(
+                subject=subject,
+            )
+            thread.save()
+            Particpaint.objects.create(user=request.user, thread=thread).save()
+            Particpaint.objects.create(user_id=user, thread=thread).save()
+            res = {
+                'status': 2,
+                "data": ThreadSerializer(thread, many=False, context={"request": request}).data
+            }
+            return Response(res)
+        else:
+            res = {
+                'status': 0,
+                'msg': 'User not found'
+            }
+            return Response(res)
+    except KeyError:
+        res = {
+            'status': 0,
+            'msg': 'Please set all reqiured fields'
+        }
+        return Response(res)
 
 
 @api_view(['POST'])

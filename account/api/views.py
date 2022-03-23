@@ -27,7 +27,6 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     search_fields = ['first_name']
 
 
-
 class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -186,6 +185,8 @@ def register(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
+
+
 #
 # @api_view(['POST'])
 # @permission_classes([AllowAny, ])
@@ -448,7 +449,7 @@ def me(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated,])
+@permission_classes([IsAuthenticated, ])
 def doctor_detail(request):
     try:
         user = Customuser.objects.filter(id=request.GET.get("doctor_id", 0)).first()
@@ -564,7 +565,7 @@ def doctor(request):
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def get_result(request):
-    disease_ids = request.data['disease_ids']
+    disease_ids = request.data['disease_ids'].split(',')
     diagnos = Diagnos.objects.all()
     persents = {}
     diagnos_ids = []
@@ -581,10 +582,10 @@ def get_result(request):
 
     diagnos = Diagnos.objects.filter(id__in=diagnos_ids).all()
     data = DiagnosSerializer(diagnos, many=True, context={
-        'request':request,
-        'persents':persents,
-        'all_count':all_count
+        'request': request,
+        'persents': persents,
+        'all_count': all_count
     })
     serializer_data = sorted(
         data.data, key=lambda k: k['persent'], reverse=True)
-    return Response({"status": 1, "diagnostics":serializer_data})
+    return Response({"status": 1, "diagnostics": serializer_data})

@@ -135,16 +135,20 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class DiagnosSerializer(serializers.ModelSerializer):
     persent = serializers.SerializerMethodField()
+    disease = serializers.SerializerMethodField()
 
     class Meta:
         model = Diagnos
-        fields = ["id", "name", "text", 'persent', 'introdaction', 'suggestion']
+        fields = ["id", "name", "text", 'persent', 'introdaction', 'suggestion',"disease"]
 
     def get_persent(self, obj):
         presents = 0
         if self.context["persents"].get(obj.id) != None:
             presents = self.context["persents"][obj.id] / self.context["all_count"] * 100
         return presents
+
+    def get_disease(self, obj):
+        return DiseaseDiagSerializer(obj.disease, many=True, context={"request": self.context["request"]}).data
 
 
 class DrugSerializer(serializers.ModelSerializer):
@@ -159,6 +163,17 @@ class DiseaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disease
         fields = ['id', 'name', 'drugs']
+
+    def get_drugs(self, obj):
+        return DrugSerializer(obj.drugs, many=True, context={"request": self.context["request"]}).data
+
+
+class DiseaseDiagSerializer(serializers.ModelSerializer):
+    drugs = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Disease
+        fields = ['drugs']
 
     def get_drugs(self, obj):
         return DrugSerializer(obj.drugs, many=True, context={"request": self.context["request"]}).data

@@ -80,6 +80,7 @@ class Diagnos(models.Model):
     disease = models.ManyToManyField(Disease, related_name='disease')
     introdaction = models.TextField(default="",null=True,blank=True)
     suggestion = models.TextField(default="",null=True,blank=True)
+    drugs = models.ManyToManyField(Drug, related_name='drugs_d')
 
     def __str__(self):
         return str(self.name)

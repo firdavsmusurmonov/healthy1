@@ -12,8 +12,18 @@ def me_schedule(request):
     try:
         user = request.user
         id = request.GET.get('id')
-        # status = request.GET['status']
-        if id:
+        status = request.GET.get('status')
+        if canceled == true:
+            add canceled
+
+        elif DateTime > Datetime.now:
+            add
+        upcoming
+
+        elif DateTime <= DateTime.now:
+        add
+        completed
+        if id and status:
             schedule = Schedule.objects.filter(pk=id).first()
             result = {
                 'status': 1,
