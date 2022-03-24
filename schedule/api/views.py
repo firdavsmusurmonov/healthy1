@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
+from django.shortcuts import render
+from account.models import Customuser
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
@@ -13,16 +15,13 @@ def me_schedule(request):
         user = request.user
         id = request.GET.get('id')
         status = request.GET.get('status')
-        if canceled == true:
-            add canceled
 
-        elif DateTime > Datetime.now:
-            add
-        upcoming
+        # Create your views here.
+        def my_scheduled_job():
+            user = Customuser.objects.filter(id=4).first()
+            user.fullname = "sasa"
+            user.save()
 
-        elif DateTime <= DateTime.now:
-        add
-        completed
         if id and status:
             schedule = Schedule.objects.filter(pk=id).first()
             result = {

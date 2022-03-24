@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'django_filters',
+    'django_crontab',
+
+
 ]+APPS
 
 MIDDLEWARE = [
@@ -182,3 +185,10 @@ EMAIL_HOST_PASSWORD = 'ucptjiglzxuyutia'
 EMAIL_PORT = 587
 
 SITE_ID = 1
+
+# from __future__ import absolute_import
+# from .celery import app as celery_app  # noqa
+
+CRONJOBS = [
+    ('* * * * *', 'chat.views.my_scheduled_job')
+]

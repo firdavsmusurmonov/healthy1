@@ -3,8 +3,10 @@ from transliterate import translit
 import string
 import random
 
+
 def random_str_generator(size=10, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
 
 def generate_unique_slug(instance, field='name', new_slug=None):
     if new_slug is None:
