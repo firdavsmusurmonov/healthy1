@@ -36,6 +36,12 @@ class CustomuserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "smscode"]
 
 
+class CustomuserLocSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customuser
+        fields = ['langtude', 'latitude']
+
+
 class CustomuserMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customuser
@@ -81,7 +87,7 @@ class ChooseDoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customuser
-        fields = ["id", "fullname", "avatar", "review_avg", "review_count", "profession", "region", "city"]
+        fields = ["id", "fullname", "avatar", "review_avg", "review_count", "profession", "region", "city","is_doctor"]
 
     def get_review_avg(self, obj):
         return Review.objects.filter(doctor=obj).aggregate(avg_rating=Avg('start'))['avg_rating']

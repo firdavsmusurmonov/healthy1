@@ -1,3 +1,4 @@
+from doctor.settings import DATETIME_FORMAT
 from schedule.models import *
 from rest_framework import viewsets
 from .serializer import *
@@ -8,15 +9,13 @@ from rest_framework import status
 from django.shortcuts import render
 from account.models import Customuser
 from django.shortcuts import render
-from account.models import Customuser
-
+import datetime
 
 # Create your views here.
 def my_scheduled_job():
-    user = Customuser.objects.filter(id=4).first()
-    schedule = Schedule.objects.filter(status=status).all()
-    user.fullname = "sasa"
-    user.save()
+    Schedule.objects.filter(status="upcoming", start_datetime__lte=datetime.now()).update(status="completed")
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])

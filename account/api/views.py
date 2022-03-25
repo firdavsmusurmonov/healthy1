@@ -107,7 +107,7 @@ class DoctorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ['fullname', "profession__name"]
-    filterset_fields = ["region", "city", "profession__id"]
+    filterset_fields = ["region", "city", "profession_id"]
     filterset_class = CustomuserFilter
 
     def get_serializer_class(self):
@@ -131,6 +131,60 @@ def region(request):
         'data': RegionSerializer(region, many=True, context={"request": request}).data,
     }
     return Response(res)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, ])
+def version(request):
+    version = request.GET["version"]
+    device = request.GET["device"]
+    version = Version.objects.filter(version__gt=version, device=device).first()
+    if version:
+        res = {
+            'status': 1,
+            'data': VersionSerializer(version, many=False, context={"request": request}).data,
+        }
+        return Response(res)
+    else:
+        res = {
+            'status': 0,
+            'data': "version not"
+        }
+        return Response(res)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, ])
+def get_location(request):
+    user_id = request.GET["user_id"]
+    user = Customuser.objects.filter(pk=user_id).first()
+    if user:
+        return "https://maps.google.com/?q=" + str(user.langtude) + "," + str(user.latitude)
+
+    return ''
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, ])
+def send_location(request):
+    try:
+        user = request.user
+        langtude = request.data.get('langtude')
+        latitude = request.data.get('latitude')
+        user.langtude = langtude
+        user.latitude = latitude
+        user.save()
+        result = {
+            'status': 1,
+            'user': CustomuserLocSerializer(user, many=False, context={"request": request}).data
+        }
+        return Response(result, status=status.HTTP_200_OK)
+    except KeyError:
+        res = {
+            'status': 0,
+            'msg': 'Please set all reqiured fields'
+        }
+        return Response(res)
 
 
 @api_view(['POST'])
@@ -203,7 +257,6 @@ def register_accepted(request):
         sms_code = request.data.get('sms_code')
         username = request.data.get('username')
         user = Customuser.objects.filter(username=username).first()
-        print(user)
         if user and str(user.smscode) == str(sms_code):
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)

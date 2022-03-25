@@ -37,10 +37,22 @@ class Region(models.Model):
         return self.name
 
 
+class Version(models.Model):
+    VERSION_CHOICES = (
+        ('ios', 'Ios'),
+        ('android', 'Android')
+    )
+    version = models.FloatField(max_length=150, blank=True, null=True)
+    device = models.CharField(choices=VERSION_CHOICES, max_length=50, null=True, blank=True)
+    fctoken = models.CharField(max_length=150, blank=True, null=True)
+    url = models.CharField(max_length=150, blank=True, null=True)
+    is_required = models.BooleanField(default=False)
+    version_name = models.CharField(max_length=150, blank=True, null=True)
+
 class Customuser(AbstractUser):
     GENDER_CHOICES = (
         ('man', 'Man'),
-        ('woman', 'Woman')
+        ('woman', ' Woman')
     )
     fullname = models.CharField(max_length=150, blank=True, null=True)
     last_name = models.CharField(max_length=150, blank=True, null=True)
@@ -57,7 +69,8 @@ class Customuser(AbstractUser):
     region = models.ForeignKey(Region, related_name="user_region", null=True, blank=True, on_delete=models.CASCADE)
     city = models.ForeignKey(Region, related_name="user_city", null=True, blank=True, on_delete=models.CASCADE)
     is_doctor = models.BooleanField(default=False)
-
+    fctoken = models.ForeignKey(Version,  null=True, blank=True,
+                               on_delete=models.CASCADE)
 
 class Review(models.Model):
     start = models.IntegerField(default=0)

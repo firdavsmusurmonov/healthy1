@@ -22,6 +22,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('register', register),
+    path('version', version),
+    path('send-location', send_location),
+    path('get-location', get_location),
     path('get-result', get_result),
     path('register-accepted', register_accepted),
     path('login', login),
