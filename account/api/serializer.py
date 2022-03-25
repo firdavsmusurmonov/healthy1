@@ -139,7 +139,7 @@ class DiagnosSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Diagnos
-        fields = ["id", "name", "text", 'persent', 'introdaction', 'suggestion',"disease"]
+        fields = ["id", "name", "text", 'persent', 'introdaction', 'suggestion', "disease"]
 
     def get_persent(self, obj):
         presents = 0

@@ -6,7 +6,7 @@ from schedule.models import *
 # Register your models here.
 
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user']
+    list_display = ['id', 'user', 'status']
 
 
 admin.site.register(Schedule, ScheduleAdmin)

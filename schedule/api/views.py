@@ -7,36 +7,30 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from django.shortcuts import render
 from account.models import Customuser
+from django.shortcuts import render
+from account.models import Customuser
+
+
+# Create your views here.
+def my_scheduled_job():
+    user = Customuser.objects.filter(id=4).first()
+    schedule = Schedule.objects.filter(status=status).all()
+    user.fullname = "sasa"
+    user.save()
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def me_schedule(request):
     try:
         user = request.user
-        id = request.GET.get('id')
-        status = request.GET.get('status')
-
-        # Create your views here.
-        def my_scheduled_job():
-            user = Customuser.objects.filter(id=4).first()
-            user.fullname = "sasa"
-            user.save()
-
-        if id and status:
-            schedule = Schedule.objects.filter(pk=id).first()
+        status = request.GET['status']
+        if status:
+            schedule = Schedule.objects.filter(status=status).all()
             result = {
                 'status': 1,
-                'schedule': ScheduleSerializer(schedule, many=False, context={"request": request}).data
+                'schedule': ScheduleSerializer(schedule, many=True, context={"request": request}).data
             }
-            return Response(result, status=status.HTTP_200_OK)
-        # if status:
-        #     status = Schedule.objects.filter(status=status).all()
-        #     result = {
-        #         'status': 1,
-        #         'schedule': ScheduleSerializer(schedule, many=False, context={"request": request}).data
-        #     }
-        #     return Response(result, status=status.HTTP_200_OK)
-
+            return Response(result)
         schedule = Schedule.objects.filter(user=user).order_by("-created_at").all()
         result = {
             'status': 1,
@@ -49,6 +43,7 @@ def me_schedule(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
@@ -75,6 +70,7 @@ def create_schedule(request):
         }
         return Response(res)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, ])
 def me_canceled(request):
@@ -99,6 +95,7 @@ def me_canceled(request):
         }
         return Response(res)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def set_status(request):
@@ -121,19 +118,19 @@ def set_status(request):
             'msg': 'Please set all reqiured fields'
         }
 
-
     return Response(res)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
 def reschedule_schedule(request):
     try:
         user = request.user
-        status=request.data.get('status')
-        desc  =request.data.get('desc')
-        start_datetime=request.data.get('start_datetime')
-        doctor_id=request.data.get('doctor')
-        profession_id=request.data.get('profession')
+        status = request.data.get('status')
+        desc = request.data.get('desc')
+        start_datetime = request.data.get('start_datetime')
+        doctor_id = request.data.get('doctor')
+        profession_id = request.data.get('profession')
         schedule = Schedule.objects.filter(id=request.data.get('id')).first()
         if schedule:
             schedule.status = status
@@ -153,6 +150,5 @@ def reschedule_schedule(request):
         res = {
             'status': 0,
             'msg': 'Please set all reqiured fields'
-                }
+        }
         return Response(res)
-
