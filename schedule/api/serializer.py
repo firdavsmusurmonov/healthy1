@@ -9,11 +9,6 @@ class DoctorUserSerializer(serializers.ModelSerializer):
         model = Customuser
         fields = ["fullname", "avatar", 'profession', ]
 
-class VersionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Version
-        fields = ['version' ]
-
 
 class ScheduleSerializer(serializers.ModelSerializer):
     doctor = serializers.SerializerMethodField()

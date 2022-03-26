@@ -11,6 +11,10 @@ class DrugAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
     search_fields = ['name']
 
+class VersionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'version']
+    search_fields = ['version_name']
+
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
@@ -45,4 +49,4 @@ admin.site.register(Disease, DiseaseAdmin)
 admin.site.register(Drug, DrugAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Region, RegionAdmin)
-admin.site.register(Version)
+admin.site.register(Version, VersionAdmin)

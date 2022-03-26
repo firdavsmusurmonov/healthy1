@@ -51,11 +51,12 @@ def create_schedule(request):
         user = request.user
         schedule = Schedule.objects.create(
             user=request.user,
-            status=request.data.get('status'),
+            status=request.data.get('status','upcoming'),
             desc=request.data.get('desc'),
             start_datetime=request.data.get('start_datetime'),
             doctor_id=request.data.get('doctor')
         )
+        # schedule.status('upcoming')
         schedule.save()
         result = {
             'status': 1,

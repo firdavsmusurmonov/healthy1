@@ -159,10 +159,16 @@ def get_location(request):
     user_id = request.GET["user_id"]
     user = Customuser.objects.filter(pk=user_id).first()
     if user:
-        return "https://maps.google.com/?q=" + str(user.langtude) + "," + str(user.latitude)
-
-    return ''
-
+        res={
+            "status":1,
+            "msg":"https://maps.google.com/?q=" + str(user.langtude) + "," + str(user.latitude)
+        }
+        return Response(res)
+    res = {
+        'status': 0,
+        'msg': 'Please set all reqiured fields'
+    }
+    return Response(res)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])

@@ -9,6 +9,12 @@ class ProfessionSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
+class VersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Version
+        fields = ["id", "version","version_name",'device','fctoken','url']
+
+
 class RegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Region
