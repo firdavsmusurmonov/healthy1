@@ -12,7 +12,7 @@ class ProfessionSerializer(serializers.ModelSerializer):
 class VersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Version
-        fields = ["id", "version","version_name",'device','fctoken','url']
+        fields = ["id", "version", "version_name", 'device', 'fctoken', 'url']
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -93,7 +93,7 @@ class ChooseDoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customuser
-        fields = ["id", "fullname", "avatar", "review_avg", "review_count", "profession", "region", "city","is_doctor"]
+        fields = ["id", "fullname", "avatar", "review_avg", "review_count", "profession", "region", "city", "is_doctor"]
 
     def get_review_avg(self, obj):
         return Review.objects.filter(doctor=obj).aggregate(avg_rating=Avg('start'))['avg_rating']

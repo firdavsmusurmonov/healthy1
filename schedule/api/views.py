@@ -11,10 +11,10 @@ from account.models import Customuser
 from django.shortcuts import render
 import datetime
 
+
 # Create your views here.
 def my_scheduled_job():
     Schedule.objects.filter(status="upcoming", start_datetime__lte=datetime.now()).update(status="completed")
-
 
 
 @api_view(['GET'])
@@ -51,7 +51,7 @@ def create_schedule(request):
         user = request.user
         schedule = Schedule.objects.create(
             user=request.user,
-            status=request.data.get('status','upcoming'),
+            status=request.data.get('status', 'upcoming'),
             desc=request.data.get('desc'),
             start_datetime=request.data.get('start_datetime'),
             doctor_id=request.data.get('doctor')

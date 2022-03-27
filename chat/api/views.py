@@ -120,3 +120,19 @@ def send_message(request):
             'msg': 'Please set all reqiured fields'
         }
         return Response(res)
+
+
+# import datetime
+
+# a = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+# for i in a:
+#     print(i, end=" ")
+
+#
+# x = ("apple", "banana", "cherry")
+# print(type(x))
+# x = {"name" : "John", "age" : 36}
+# print(type(x))
+#
+# if 5 > 2:
+#   print("Five is greater than two!")

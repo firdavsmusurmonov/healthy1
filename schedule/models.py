@@ -2,7 +2,6 @@ from django.db import models
 from account.models import Customuser, Profession
 
 
-# Create your models here.
 class Schedule(models.Model):
     STATUS_CHOICES = (
         ('upcoming', 'Upcoming'),

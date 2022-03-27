@@ -11,6 +11,7 @@ class DrugAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
     search_fields = ['name']
 
+
 class VersionAdmin(admin.ModelAdmin):
     list_display = ['id', 'version']
     search_fields = ['version_name']
