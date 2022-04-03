@@ -30,7 +30,7 @@ class ThreadViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class MessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Message.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]

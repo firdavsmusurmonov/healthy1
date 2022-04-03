@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from chat.models import *
-from account.api.serializer import CustomuserSerializer, CustomuserMessageSerializer
+from account.api.serializer import CustomuserMessageSerializer
 
 
-# Serializers define the API representation.
 class ThreadSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()

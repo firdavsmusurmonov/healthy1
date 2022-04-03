@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Message, Thread
-from account.models import Customuser
+# from .models import Message, Thread
+# from account.models import Customuser
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
